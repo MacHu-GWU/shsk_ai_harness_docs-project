@@ -80,6 +80,10 @@ reads the cached index, picks the 1–3 most relevant pages, fetches only those 
 raw Markdown, and loops until it can answer. The per-framework sections below
 describe how each index is sourced.
 
+All skills live under `.claude/skills/ai-harness-docs/
+<https://github.com/MacHu-GWU/shsk_ai_harness_docs-project/tree/main/.claude/skills/ai-harness-docs>`_,
+one subdirectory per framework (each with its own ``SKILL.md`` and index builder).
+
 
 Strands Agents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
