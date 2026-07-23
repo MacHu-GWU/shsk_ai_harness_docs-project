@@ -1,13 +1,13 @@
 ---
 name: strands-agents-docs
-description: Look up authoritative, up-to-date Strands Agents documentation — the Python/TypeScript SDK for building production AI agents. Covers the agent loop, tools, MCP, multi-agent (swarm/graph/agents-as-tools), sessions & state, hooks, streaming, model providers, sandboxes, plugins, deployment, and the full Python API reference. Use when the user asks how a Strands feature works, what a class/parameter does, how to wire up tools/MCP/multi-agent/sessions, when troubleshooting a Strands error, or when you need to cite current official docs rather than rely on training-cutoff knowledge.
+description: Look up authoritative, up-to-date Strands Agents documentation — the Python/TypeScript SDK for building production AI agents. Covers the agent loop, tools, MCP, multi-agent (swarm/graph/agents-as-tools), sessions & state, hooks, streaming, model providers, sandboxes, plugins, deployment, and the full Python/TypeScript API reference. Use when the user asks how a Strands feature works, what a class/parameter does, how to wire up tools/MCP/multi-agent/sessions, when troubleshooting a Strands error, or when you need to cite current official docs rather than rely on training-cutoff knowledge.
 argument-hint: [topic or doc title]
-allowed-tools: WebFetch
+allowed-tools: Bash(python3 *), Read, WebFetch
 ---
 
 # Strands Agents Docs
 
-Lazy-loads the official Strands Agents documentation by reading the index at `https://strandsagents.com/llms.txt`, picking the most relevant page(s), and fetching them on demand. Always prefer this skill over recalling docs from memory — the SDK ships frequently and the docs track it.
+Answers Strands questions from the **official docs**, not memory — the SDK ships frequently and the docs track it. A helper script builds a description-enriched index (cached per day) so you can triage precisely, then you fetch only the 1–3 pages you actually need.
 
 If the user passed an argument (`$ARGUMENTS`), treat it as the topic to look up. Otherwise infer the topic from the conversation.
 
@@ -20,32 +20,34 @@ Use it whenever the question is about the Strands Agents SDK or anything in its 
 - **Multi-agent**: agent-to-agent, agents-as-tools, swarm, graph, workflow patterns
 - **Streaming & realtime**: async iterators, callback handlers, bidirectional/voice streaming
 - **Model providers, sandboxes, plugins** (skills, steering, context-offloader/injector, goal-loop), **structured output**, deployment
-- **Python API reference**: modules under `strands.*` — classes, functions, parameters (e.g. `strands.agent.agent`, `strands.tools`, conversation managers)
-- **Examples**: runnable sample implementations (Python & TypeScript)
-- **Quickstart** (Python / TypeScript) and **changelog / release history**
+- **API reference**: `strands.*` Python modules and the TypeScript API (classes, functions, parameters)
+- **Examples**, **quickstart** (Python / TypeScript), and **changelog / release history**
 
 ## Procedure
 
-### 1. Read the index
+Search parameters: **page_size = 3** (pages per fetch batch), **max_items = 9** (hard cap across all batches).
+
+### 1. Build / load the index, then read it
+
+Run the builder — it prints the path of the cached index on its last stdout line. It reuses today's cache (near-instant) and only rebuilds when the date rolls over:
 
 ```
-WebFetch url=https://strandsagents.com/llms.txt
-        prompt="Return the raw markdown outline unmodified. I need every `- [Title](URL)` line and its section heading, verbatim, so I can pick pages to fetch."
+Bash: python3 "${CLAUDE_SKILL_DIR}/scripts/build_index.py"
 ```
 
-The index is a large (~800-line) hierarchical outline, not a flat list. Entries look like `- [Title](https://strandsagents.com/docs/<path>/index.md)`, grouped under section headings (`Get Started`, `Build`, `Concepts`, `Multi-agent`, `API Reference`, `Examples`, `Changelog`, …). Most lines carry **no description** — the **section heading + title + URL path** are your triage signal. URLs end in `index.md` — the targets are raw Markdown, not HTML.
+Then **Read that file**. It is a description-enriched outline: `- [Title](url): description`, grouped under the site's section headings (`Get Started`, `Build`, `Concepts`, `Multi-agent`, `API Reference`, `Examples`, `Changelog`, …). URLs end in `index.md` — they are raw Markdown.
 
-Because the index is long, WebFetch may compress it. If the outline comes back partial or a section you need is missing, re-fetch with a prompt scoped to that section, e.g. `"Return only the lines under the 'Multi-agent' / 'Tools' section, verbatim."`
+> Note: narrative/user-guide entries carry a real one-line description. **API-reference entries are title-only by design** (their module/class name, e.g. `strands.agent.agent`, is the signal) — match those by name + path.
 
 ### 2. Pick the right page(s)
 
-Match the user's question against the **title and the URL path** (the path segments are meaningful, e.g. `.../concepts/multi-agent/swarm/index.md`), plus the **section heading** it sits under. Then:
+Match the user's question against the **description** first, then title + URL path + section heading. Then:
 
-- Pick **1–3 pages per batch**, not more. The index is for triage, not bulk loading.
+- Pick **up to page_size (3) pages per batch**, not more. The index is for triage, not bulk loading.
 - One specific feature ("how do hooks work?") → one page.
-- Cross-concept question ("how does swarm compare to agents-as-tools?") → fetch each relevant page.
-- **API reference** questions (a specific `strands.*` class/parameter) → go straight to that module's `docs/api/python/<module>/index.md` page.
-- Nothing in the index obviously matches → say so. Do not guess a URL.
+- Cross-concept question ("swarm vs agents-as-tools?") → one page each.
+- API question about a specific `strands.*` class/param → go straight to that module's `docs/api/python/<module>/index.md` entry.
+- Nothing matches → say so. Do not guess a URL that isn't in the index.
 
 ### 3. Fetch the batch
 
@@ -58,18 +60,16 @@ WebFetch url=<URL from index>
 
 ### 4. Evaluate, then loop or answer
 
-After each batch, judge whether the fetched pages actually answer the user's question:
-
-- **Enough** → answer, grounded in the fetched content. Cite the doc page (title + URL) when stating non-obvious facts so the user can verify.
-- **Not enough** (the answer lives on a page you haven't read, or a fetched page linked to another `index.md`) → go back to step 2, pick the next 1–3 pages, and fetch again. In-page links use `/docs/.../index.md` paths — resolve them against `https://strandsagents.com`.
-- Keep looping until you can answer, up to a **default cap of 9 pages total** across all batches.
-- **Still not enough at 9 pages** → stop. Tell the user honestly what you've read, what's still missing, and ask whether they want you to keep reading more pages. Don't silently blow past the cap or pad the answer with guesses.
+- **Enough** → answer, grounded in the fetched content. Cite the doc page (title + URL) for non-obvious facts.
+- **Not enough** (answer lives on an unread page, or a page linked to another `index.md`) → return to step 2, pick the next batch. In-page links use `/docs/.../index.md` paths — resolve them against `https://strandsagents.com`.
+- Keep looping up to **max_items (9) pages total**. If 9 still don't answer it, stop and tell the user what you read, what's missing, and ask before reading more. Don't blow past the cap or pad with guesses.
 
 ## Rules
 
-- **Never invent a doc URL.** If a page isn't in the index, it does not exist — say so instead of fabricating a slug.
-- **Don't skip step 1**, even if you think you remember the right URL. Doc paths get renamed and modules move; the index is the source of truth.
-- **Loop in small batches, cap at 9 pages.** Fetch 1–3, check if that's enough, fetch more only if it isn't. If 9 pages still don't answer it, ask the user before reading more.
-- **Stay in scope.** This skill covers `strandsagents.com/docs/*` (plus the site's `/changelog`). The three richest areas are `docs/user-guide/*`, `docs/api/python/*`, and `docs/examples/*`.
-- **Pass through what the docs say.** Don't merge aggressively with prior knowledge — the user wants current authoritative behavior, not a synthesis.
-- **Need many pages at once?** `https://strandsagents.com/llms-full.txt` inlines the full corpus in one file. It is very large (multi-MB) — only reach for it when a broad question genuinely needs it, and prefer targeted `index.md` fetches otherwise.
+- **Always start from the built index (step 1).** It is the source of truth for which pages exist; doc paths get renamed and modules move.
+- **Never invent a doc URL.** If a page isn't in the index, say so instead of fabricating a slug.
+- **Respect page_size / max_items.** Fetch 1–3, check, fetch more only if needed; ask the user before exceeding 9.
+- **Stay in scope.** `strandsagents.com/docs/*` plus the site's `/changelog`.
+- **Pass through what the docs say.** Don't merge aggressively with prior knowledge — the user wants current authoritative behavior.
+
+If the builder ever fails (e.g. no network), fall back to WebFetching `https://strandsagents.com/llms.txt` directly as the index (title + URL only, no descriptions).

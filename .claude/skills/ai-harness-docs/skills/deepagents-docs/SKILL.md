@@ -1,24 +1,19 @@
 ---
 name: deepagents-docs
-description: Look up authoritative, up-to-date deepagents documentation — LangChain's Python/JavaScript framework for building deep agents (planning, subagents, virtual filesystem, long-horizon tasks). Covers quickstart, subagents (async/dynamic), backends & sandboxes, memory & skills, human-in-the-loop, MCP tools, models, streaming, frontend integration, the deepagents CLI (`code/`), and going to production. Use when the user asks how a deepagents feature works, what a parameter does, how to wire up subagents/backends/skills, when troubleshooting a deepagents error, or when you need to cite current official docs rather than rely on training-cutoff knowledge.
+description: Look up authoritative, up-to-date deepagents documentation — LangChain's Python/JavaScript framework for building deep agents (planning, subagents, virtual filesystem, long-horizon tasks). Covers quickstart, subagents (async/dynamic), backends & sandboxes, memory & skills, human-in-the-loop, MCP tools, models, streaming, frontend integration, the deepagents CLI (Deep Agents Code), and going to production. Use when the user asks how a deepagents feature works, what a parameter does, how to wire up subagents/backends/skills, when troubleshooting a deepagents error, or when you need to cite current official docs rather than rely on training-cutoff knowledge.
 argument-hint: [topic or doc page]
-allowed-tools: WebFetch, Bash(curl *), Bash(grep *), Bash(sort *)
+allowed-tools: Bash(python3 *), Read, WebFetch
 ---
 
 # deepagents Docs
 
-Lazy-loads the official deepagents documentation (hosted on LangChain's docs site) by building a live index from the site sitemap, picking the most relevant page(s), and fetching each as raw Markdown on demand. Always prefer this skill over recalling docs from memory — deepagents ships frequently and the docs track it.
+Answers deepagents questions from the **official docs** (hosted on LangChain's docs site), not memory — deepagents ships frequently. A helper script builds a description-enriched index (cached per day) so you can triage precisely, then you fetch only the 1–3 pages you actually need as raw Markdown.
 
 If the user passed an argument (`$ARGUMENTS`), treat it as the topic to look up. Otherwise infer the topic from the conversation.
 
-## Why this skill is different from a normal `llms.txt` lookup
+## Why this skill needs its own index
 
-deepagents docs live under `https://docs.langchain.com/oss/{python,javascript}/deepagents/`, but:
-
-- **The site's `llms.txt` does NOT list any deepagents pages** — do not use it for this skill.
-- **`llms-full.txt` exists but is ~14 MB** — far too large to load; do not fetch it.
-- **Do NOT ask WebFetch to filter the sitemap.** The sitemap has ~1500 URLs; WebFetch runs it through a small model that truncates and will wrongly report "no deepagents URLs." The index MUST be built with a deterministic `curl | grep` (step 1).
-- **Every page is fetchable as raw Markdown** by appending `.md` to its URL (Mintlify convention), e.g. `.../deepagents/subagents.md`. Fetch the `.md`, never the HTML.
+deepagents docs live under `https://docs.langchain.com/oss/{python,javascript}/deepagents/`, but the site's `llms.txt` **does not list any deepagents pages**, and `llms-full.txt` is ~14 MB. So the builder discovers deepagents pages from the site **sitemap** and reads each page's frontmatter `description`. Do not try to use `llms.txt` for this skill.
 
 ## When to use this skill
 
@@ -29,60 +24,57 @@ Use it whenever the question is about the **deepagents** framework or anything i
 - **State & storage**: backends, sandboxes / remote-sandboxes, interpreters, memory, the virtual filesystem
 - **Capabilities**: skills, tools, MCP tools, models, multimodal, RAG, deep-research, human-in-the-loop, permissions, context-engineering, streaming / event-streaming, fault-tolerance
 - **Frontend**: `frontend/` pages (overview, sandbox, subagent-streaming, todo-list)
-- **deepagents CLI / "code"**: the `code/` pages (cli-reference, config-file, configuration, approval-modes, hooks, providers, credentials, plugins, remote-sandboxes, …)
+- **deepagents CLI / "Deep Agents Code"**: the `code/` pages (cli-reference, config-file, configuration, approval-modes, hooks, providers, credentials, plugins, remote-sandboxes, …)
 - **Production**: going-to-production, profiles, customization
 
 ## Procedure
 
-### 1. Build the index (deterministic — do not use WebFetch here)
+Search parameters: **page_size = 3** (pages per fetch batch), **max_items = 9** (hard cap across all batches).
 
-Pick the language the user is working in. Default to **python** unless the question is clearly about JavaScript/TypeScript (then use `javascript`, or fetch both if unclear):
+### 1. Build / load the index, then read it
 
-```bash
-curl -s https://docs.langchain.com/sitemap.xml \
-  | grep -oE 'https://docs\.langchain\.com/oss/python/deepagents/[^<[:space:]]+' \
-  | sort -u
+Run the builder — it prints the path of the cached index on its last stdout line. It reuses today's cache (near-instant) and only rebuilds when the date rolls over (first build fetches ~94 pages, ~5s):
+
+```
+Bash: python3 "${CLAUDE_SKILL_DIR}/scripts/build_index.py"
 ```
 
-Swap `python` for `javascript` (or run both) as needed. This returns the complete, current list of deepagents page URLs (~45–50 per language). There are **no descriptions** — the URL **path segments are the triage signal** (e.g. `.../deepagents/code/cli-reference`, `.../deepagents/frontend/todo-list`).
+Then **Read that file**. It is a description-enriched list `- [Title](url): description  (short/path)`, split into `## python` and `## javascript` sections. Every entry has a real one-line description drawn from the page's frontmatter.
 
 ### 2. Pick the right page(s)
 
-Match the user's question against the path segments and the sub-areas (`deepagents/…` core, `deepagents/code/…` = the CLI, `deepagents/frontend/…` = UI integration). Then:
+Match the user's question against the **description** first, then title + path. Sub-areas: `deepagents/…` core, `deepagents/code/…` = the CLI (Deep Agents Code), `deepagents/frontend/…` = UI integration. Then:
 
-- Pick **1–3 pages per batch**, not more. The index is for triage, not bulk loading.
-- One specific feature ("how do subagents work?") → one page (`.../deepagents/subagents`).
-- Cross-concept question ("how do backends relate to sandboxes?") → fetch each relevant page.
-- Keep to the user's language (python vs javascript). Don't fetch both variants of the same page unless the user asks to compare.
-- Nothing in the index obviously matches → say so. Do not guess a slug.
+- Pick **up to page_size (3) pages per batch**, not more.
+- **Match the user's language** — read from the `## python` section by default, `## javascript` if the question is clearly JS/TS. Don't fetch both variants of a page unless the user wants a comparison.
+- One specific feature ("how do subagents work?") → one page.
+- Nothing matches → say so. Do not guess a slug that isn't in the index.
 
 ### 3. Fetch the batch (append `.md`)
 
-For each chosen page URL, append `.md` and WebFetch it:
+The index lists the HTML page URLs. To read content, **append `.md`** (Mintlify raw-Markdown endpoint — ~40× smaller and cleaner than the HTML):
 
 ```
-WebFetch url=https://docs.langchain.com/oss/python/deepagents/<page>.md
+WebFetch url=<page URL from index>.md
         prompt="<a question that captures what the user actually needs, not 'summarize this page'>"
 ```
 
-The `.md` endpoint returns clean Markdown (the HTML page is ~40× larger and noisy). Each page opens with a short "Documentation Index" note from the site — ignore it and read the content below.
+Each `.md` opens with a short "Documentation Index" note from the site — ignore it and read the content below.
 
 ### 4. Evaluate, then loop or answer
 
-After each batch, judge whether the fetched pages actually answer the user's question:
-
-- **Enough** → answer, grounded in the fetched content. Cite the doc page (title + URL) when stating non-obvious facts so the user can verify.
-- **Not enough** (the answer lives on a page you haven't read, or a fetched page linked to another deepagents page) → go back to step 2, pick the next 1–3 pages from the index, and fetch again as `.md`.
-- Keep looping until you can answer, up to a **default cap of 9 pages total** across all batches.
-- **Still not enough at 9 pages** → stop. Tell the user honestly what you've read, what's still missing, and ask whether they want you to keep reading more pages. Don't silently blow past the cap or pad the answer with guesses.
+- **Enough** → answer, grounded in the fetched content. Cite the doc page (title + URL) for non-obvious facts.
+- **Not enough** (answer lives on an unread page, or a page linked to another deepagents page) → return to step 2, pick the next batch, fetch as `.md`.
+- Keep looping up to **max_items (9) pages total**. If 9 still don't answer it, stop and tell the user what you read, what's missing, and ask before reading more.
 
 ## Rules
 
-- **Build the index with `curl | grep` (step 1), never by asking WebFetch to filter the sitemap.** WebFetch will truncate the 1500-URL sitemap and falsely report no deepagents pages.
-- **Never invent a doc URL.** Only fetch pages that appear in the step-1 index. If a page isn't there, it does not exist — say so instead of fabricating a slug.
-- **Don't skip step 1**, even if you think you remember the right URL. deepagents pages get added and renamed; the sitemap is the source of truth.
+- **Always start from the built index (step 1).** deepagents pages get added and renamed; the sitemap-derived index is the source of truth.
+- **Never invent a doc URL.** Only fetch pages that appear in the index. If it isn't there, it doesn't exist — say so.
 - **Always fetch the `.md` variant**, not the HTML page.
-- **Match the user's language.** Python pages live under `oss/python/deepagents/`, JavaScript under `oss/javascript/deepagents/`. Default to python when unspecified.
-- **Loop in small batches, cap at 9 pages.** If 9 pages still don't answer it, ask before reading more.
-- **Ignore `llms.txt` / `llms-full.txt` for this skill.** The former omits deepagents; the latter is ~14 MB.
-- **Pass through what the docs say.** Don't merge aggressively with prior knowledge — the user wants current authoritative behavior, not a synthesis.
+- **Match the user's language** (python vs javascript). Default to python when unspecified.
+- **Respect page_size / max_items.** Fetch 1–3, check, fetch more only if needed; ask before exceeding 9.
+- **Ignore `llms.txt` / `llms-full.txt`.** The former omits deepagents; the latter is ~14 MB.
+- **Pass through what the docs say.** Don't merge aggressively with prior knowledge.
+
+If the builder ever fails (e.g. no network), fall back to discovering pages directly: `curl -s https://docs.langchain.com/sitemap.xml | grep -oE 'https://docs\.langchain\.com/oss/python/deepagents/[^<[:space:]]+' | sort -u`, then fetch chosen pages as `<url>.md`.

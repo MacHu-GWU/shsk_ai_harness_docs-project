@@ -1,6 +1,6 @@
 {
   "name": "ai-harness-docs",
-  "description": "",
+  "description": "Grounded, always-current documentation lookup for AI agent harnesses and frameworks (Strands Agents, deepagents, and more). Each bundled skill lazy-loads the target framework's official docs on demand so answers cite current authoritative behavior instead of training-cutoff knowledge.",
   "version": "0.1.1",
   "author": {
     "name": "Sanhe Hu",
