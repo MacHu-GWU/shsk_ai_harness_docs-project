@@ -23,13 +23,21 @@ def _render_template(n: int, zfill: int) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
-def _main(n: int, path: Path, overwrite: bool = False, zfill: int = 4) -> int:
+def _main(
+    n: int,
+    path: Path,
+    overwrite: bool = False,
+    zfill: int = 4,
+) -> int:
     """Write a claude-code-messages.md template with n numbered, fillable prompt slots.
 
     Returns an exit code: 0 on success, 1 on failure.
     """
     if path.exists() and not overwrite:
-        print(f"ERROR: {path} already exists, pass --overwrite to replace it", file=sys.stderr)
+        print(
+            f"ERROR: {path} already exists, pass --overwrite to replace it",
+            file=sys.stderr,
+        )
         return 1
 
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -43,15 +51,29 @@ def main(argv: list[str] | None = None) -> int:
         prog="gen_claude_code_message_md",
         description="Generate a fillable claude-code-messages.md template with numbered prompt slots.",
     )
-    parser.add_argument("--n", type=int, default=999, help="number of numbered template slots to generate")
+    parser.add_argument(
+        "--n",
+        type=int,
+        default=99,
+        help="number of numbered template slots to generate",
+    )
     parser.add_argument(
         "--path",
         type=Path,
         default=Path(__file__).resolve().parent / "claude-code-messages.md",
         help="output path for the generated template",
     )
-    parser.add_argument("--overwrite", action="store_true", help="overwrite the output file if it already exists")
-    parser.add_argument("--zfill", type=int, default=4, help="digit width to zero-pad each entry's heading number to")
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="overwrite the output file if it already exists",
+    )
+    parser.add_argument(
+        "--zfill",
+        type=int,
+        default=4,
+        help="digit width to zero-pad each entry's heading number to",
+    )
     args = parser.parse_args(argv)
     return _main(n=args.n, path=args.path, overwrite=args.overwrite, zfill=args.zfill)
 
