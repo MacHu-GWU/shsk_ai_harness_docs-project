@@ -37,5 +37,19 @@
             "Read(========== Web Fetch ==========)",
             "WebFetch(domain:raw.githubusercontent.com)"
         ]
+    },
+    "extraKnownMarketplaces": {
+        "sanhe-claude-code-plugin-marketplace": {
+            "source": {
+                "source": "github",
+                "repo": "MacHu-GWU/sanhe_claude_code_plugin_marketplace-project",
+                "ref": "0.4.1"
+            }
+        }
+    },
+    "enabledPlugins": {
+        "coding-agent-docs@sanhe-claude-code-plugin-marketplace": true,
+        "dot-claude@sanhe-claude-code-plugin-marketplace": true,
+        "doc-writing-styles@sanhe-claude-code-plugin-marketplace": true
     }
 }

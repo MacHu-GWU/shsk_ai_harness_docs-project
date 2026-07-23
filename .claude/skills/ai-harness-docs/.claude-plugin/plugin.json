@@ -1,0 +1,15 @@
+{
+  "name": "ai-harness-docs",
+  "description": "",
+  "version": "0.1.1",
+  "author": {
+    "name": "Sanhe Hu",
+    "email": "husanhe@email.com"
+  },
+  "homepage": "https://github.com/MacHu-GWU/shsk_ai_harness_docs-project",
+  "repository": "https://github.com/MacHu-GWU/shsk_ai_harness_docs-project",
+  "license": "MIT",
+  "keywords": [
+    "claude-code"
+  ]
+}

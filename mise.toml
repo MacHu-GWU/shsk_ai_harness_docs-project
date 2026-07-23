@@ -91,6 +91,15 @@ description = "🏷 Create GitHub release using PyGithub (idempotent: skips if r
 run = ".venv/bin/python .mise/tasks/release.py"
 depends = ["inst"]
 
+# Claude Code Plugin Release
+[tasks.list-plugins]
+description = "🔌 List and validate all Claude Code plugins under .claude/skills/"
+run = "python3 .claude/skills/maintain-claude-plugins/scripts/plugin_release.py list"
+
+[tasks.tag-plugin]
+description = "🏷🔌 Tag and push {plugin-name}--v{version} git tags for all Claude Code plugins under .claude/skills/"
+run = "python3 .claude/skills/maintain-claude-plugins/scripts/plugin_release.py tag"
+
 # CI/CD Setup
 [tasks.setup-codecov]
 description = "⚙️ Setup Codecov upload token on GitHub Actions secrets using PyGithub and httpx"

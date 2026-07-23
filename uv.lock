@@ -292,59 +292,6 @@ wheels = [
 ]
 
 [[package]]
-name = "cookiecutter-pywf-open-source-demo"
-version = "1.0.4"
-source = { editable = "." }
-
-[package.optional-dependencies]
-dev = [
-    { name = "rich" },
-]
-doc = [
-    { name = "docfly" },
-    { name = "furo" },
-    { name = "ipython" },
-    { name = "nbsphinx" },
-    { name = "pygments" },
-    { name = "rstobj" },
-    { name = "sphinx" },
-    { name = "sphinx-copybutton" },
-    { name = "sphinx-design", version = "0.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "sphinx-design", version = "0.7.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "sphinx-jinja" },
-]
-mise = [
-    { name = "httpx" },
-    { name = "pygithub" },
-    { name = "tomli", marker = "python_full_version < '3.11'" },
-]
-test = [
-    { name = "pytest" },
-    { name = "pytest-cov" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "docfly", marker = "extra == 'doc'", specifier = "==3.0.3" },
-    { name = "furo", marker = "extra == 'doc'", specifier = "==2024.8.6" },
-    { name = "httpx", marker = "extra == 'mise'", specifier = ">=0.28.0,<1.0.0" },
-    { name = "ipython", marker = "extra == 'doc'", specifier = ">=8.18.1,<8.19.0" },
-    { name = "nbsphinx", marker = "extra == 'doc'", specifier = ">=0.8.12,<1.0.0" },
-    { name = "pygithub", marker = "extra == 'mise'", specifier = ">=2.8.0,<3.0.0" },
-    { name = "pygments", marker = "extra == 'doc'", specifier = ">=2.18.0,<3.0.0" },
-    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.2.2,<9.0.0" },
-    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=6.0.0,<7.0.0" },
-    { name = "rich", marker = "extra == 'dev'", specifier = ">=13.8.1,<14.0.0" },
-    { name = "rstobj", marker = "extra == 'doc'", specifier = "==2.0.0" },
-    { name = "sphinx", marker = "extra == 'doc'", specifier = ">=7.4.7,<8.0.0" },
-    { name = "sphinx-copybutton", marker = "extra == 'doc'", specifier = ">=0.5.2,<1.0.0" },
-    { name = "sphinx-design", marker = "extra == 'doc'", specifier = ">=0.6.1,<1.0.0" },
-    { name = "sphinx-jinja", marker = "extra == 'doc'", specifier = ">=2.0.2,<3.0.0" },
-    { name = "tomli", marker = "python_full_version < '3.11' and extra == 'mise'", specifier = ">=2.0.0,<3.0.0" },
-]
-provides-extras = ["dev", "test", "doc", "mise"]
-
-[[package]]
 name = "coverage"
 version = "7.13.5"
 source = { registry = "https://pypi.org/simple" }
@@ -631,6 +578,19 @@ wheels = [
 ]
 
 [[package]]
+name = "httpcore2"
+version = "2.9.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "h11" },
+    { name = "truststore" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d5/4e/fc534e5c8e9d6df4598cda50bd3df936ba9af495f932dc93376597b2f6db/httpcore2-2.9.0.tar.gz", hash = "sha256:03077a578e26d6166d831f68319326bf1d92cb851946292d2158a85e9da1896a", size = 67072, upload-time = "2026-07-23T14:09:49.949Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d7/00/bf7357a92f1807f654c3bb303b3e158294ec6a1313c79511fc9f1a45de2b/httpcore2-2.9.0-py3-none-any.whl", hash = "sha256:e51e54521809628d2014da8d67eecd4de738d54f556d646069fa9cb63fc9a9dc", size = 82800, upload-time = "2026-07-23T14:09:46.868Z" },
+]
+
+[[package]]
 name = "httpx"
 version = "0.28.1"
 source = { registry = "https://pypi.org/simple" }
@@ -646,12 +606,28 @@ wheels = [
 ]
 
 [[package]]
-name = "idna"
-version = "3.11"
+name = "httpx2"
+version = "2.9.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6f/6d/0703ccc57f3a7233505399edb88de3cbd678da106337b9fcde432b65ed60/idna-3.11.tar.gz", hash = "sha256:795dafcc9c04ed0c1fb032c2aa73654d8e8c5023a7df64a53f39190ada629902", size = 194582, upload-time = "2025-10-12T14:55:20.501Z" }
+dependencies = [
+    { name = "anyio" },
+    { name = "httpcore2" },
+    { name = "idna" },
+    { name = "truststore" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/92/18/b79756b348664b13253a5811230daa1f33b3f0e86df4409b26199f5e9c3e/httpx2-2.9.0.tar.gz", hash = "sha256:85e33a04e7b0ad24044a62affa916140f363f19ba38e15fbc7e6aba1f1fb2775", size = 95340, upload-time = "2026-07-23T14:09:51.094Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0e/61/66938bbb5fc52dbdf84594873d5b51fb1f7c7794e9c0f5bd885f30bc507b/idna-3.11-py3-none-any.whl", hash = "sha256:771a87f49d9defaf64091e6e6fe9c18d4833f140bd19464795bc32d966ca37ea", size = 71008, upload-time = "2025-10-12T14:55:18.883Z" },
+    { url = "https://files.pythonhosted.org/packages/82/7d/354002b85409c6fe6f3f6b97624f1d11a4ddf701cd9a7ed2e161c73f0d86/httpx2-2.9.0-py3-none-any.whl", hash = "sha256:cc8e82fa3dc02fa91586dc6ccb3c9bd802a5a48adf4626d66553e793de67cbb4", size = 91107, upload-time = "2026-07-23T14:09:48.434Z" },
+]
+
+[[package]]
+name = "idna"
+version = "3.18"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cd/63/9496c57188a2ee585e0f1db071d75089a11e98aa86eb99d9d7618fc1edce/idna-3.18.tar.gz", hash = "sha256:ffb385a7e039654cef1ab9ef32c6fafe283c0c0467bba1d9029738ce4a14a848", size = 196711, upload-time = "2026-06-02T14:34:07.794Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1e/5e/d4e9f1a599fb8e573b7b87160658329fbf28d19eac2718f51fc3def3aa5a/idna-3.18-py3-none-any.whl", hash = "sha256:7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2", size = 65455, upload-time = "2026-06-02T14:34:06.319Z" },
 ]
 
 [[package]]
@@ -1461,6 +1437,63 @@ wheels = [
 ]
 
 [[package]]
+name = "shsk-ai-harness-docs"
+version = "0.1.1"
+source = { editable = "." }
+dependencies = [
+    { name = "httpx2" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "rich" },
+]
+doc = [
+    { name = "docfly" },
+    { name = "furo" },
+    { name = "ipython" },
+    { name = "nbsphinx" },
+    { name = "pygments" },
+    { name = "rstobj" },
+    { name = "sphinx" },
+    { name = "sphinx-copybutton" },
+    { name = "sphinx-design", version = "0.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "sphinx-design", version = "0.7.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "sphinx-jinja" },
+]
+mise = [
+    { name = "httpx" },
+    { name = "pygithub" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
+]
+test = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "docfly", marker = "extra == 'doc'", specifier = "==3.0.3" },
+    { name = "furo", marker = "extra == 'doc'", specifier = "==2024.8.6" },
+    { name = "httpx", marker = "extra == 'mise'", specifier = ">=0.28.0,<1.0.0" },
+    { name = "httpx2", specifier = ">=2.8.0,<3.0.0" },
+    { name = "ipython", marker = "extra == 'doc'", specifier = ">=8.18.1,<8.19.0" },
+    { name = "nbsphinx", marker = "extra == 'doc'", specifier = ">=0.8.12,<1.0.0" },
+    { name = "pygithub", marker = "extra == 'mise'", specifier = ">=2.8.0,<3.0.0" },
+    { name = "pygments", marker = "extra == 'doc'", specifier = ">=2.18.0,<3.0.0" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.2.2,<9.0.0" },
+    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=6.0.0,<7.0.0" },
+    { name = "rich", marker = "extra == 'dev'", specifier = ">=13.8.1,<14.0.0" },
+    { name = "rstobj", marker = "extra == 'doc'", specifier = "==2.0.0" },
+    { name = "sphinx", marker = "extra == 'doc'", specifier = ">=7.4.7,<8.0.0" },
+    { name = "sphinx-copybutton", marker = "extra == 'doc'", specifier = ">=0.5.2,<1.0.0" },
+    { name = "sphinx-design", marker = "extra == 'doc'", specifier = ">=0.6.1,<1.0.0" },
+    { name = "sphinx-jinja", marker = "extra == 'doc'", specifier = ">=2.0.2,<3.0.0" },
+    { name = "tomli", marker = "python_full_version < '3.11' and extra == 'mise'", specifier = ">=2.0.0,<3.0.0" },
+]
+provides-extras = ["dev", "test", "doc", "mise"]
+
+[[package]]
 name = "six"
 version = "1.17.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1741,6 +1774,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/eb/79/72064e6a701c2183016abbbfedaba506d81e30e232a68c9f0d6f6fcd1574/traitlets-5.14.3.tar.gz", hash = "sha256:9ed0579d3502c94b4b3732ac120375cda96f923114522847de4b3bb98b96b6b7", size = 161621, upload-time = "2024-04-19T11:11:49.746Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/00/c0/8f5d070730d7836adc9c9b6408dec68c6ced86b304a9b26a14df072a6e8c/traitlets-5.14.3-py3-none-any.whl", hash = "sha256:b74e89e397b1ed28cc831db7aea759ba6640cb3de13090ca145426688ff1ac4f", size = 85359, upload-time = "2024-04-19T11:11:46.763Z" },
+]
+
+[[package]]
+name = "truststore"
+version = "0.10.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/53/a3/1585216310e344e8102c22482f6060c7a6ea0322b63e026372e6dcefcfd6/truststore-0.10.4.tar.gz", hash = "sha256:9d91bd436463ad5e4ee4aba766628dd6cd7010cf3e2461756b3303710eebc301", size = 26169, upload-time = "2025-08-12T18:49:02.73Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/19/97/56608b2249fe206a67cd573bc93cd9896e1efb9e98bce9c163bcdc704b88/truststore-0.10.4-py3-none-any.whl", hash = "sha256:adaeaecf1cbb5f4de3b1959b42d41f6fab57b2b1666adb59e89cb0b53361d981", size = 18660, upload-time = "2025-08-12T18:49:01.46Z" },
 ]
 
 [[package]]
