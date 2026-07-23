@@ -3,19 +3,19 @@
     :target: https://shsk-ai-harness-docs.readthedocs.io/en/latest/
     :alt: Documentation Status
 
-.. image:: https://github.com/MacHu-GWU/shsk_ai_harness_docs-project/actions/workflows/main.yml/badge.svg
+.. .. image:: https://github.com/MacHu-GWU/shsk_ai_harness_docs-project/actions/workflows/main.yml/badge.svg
     :target: https://github.com/MacHu-GWU/shsk_ai_harness_docs-project/actions?query=workflow:CI
 
-.. image:: https://codecov.io/gh/MacHu-GWU/shsk_ai_harness_docs-project/branch/main/graph/badge.svg
+.. .. image:: https://codecov.io/gh/MacHu-GWU/shsk_ai_harness_docs-project/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/MacHu-GWU/shsk_ai_harness_docs-project
 
-.. image:: https://img.shields.io/pypi/v/shsk-ai-harness-docs.svg
+.. .. image:: https://img.shields.io/pypi/v/shsk-ai-harness-docs.svg
     :target: https://pypi.python.org/pypi/shsk-ai-harness-docs
 
-.. image:: https://img.shields.io/pypi/l/shsk-ai-harness-docs.svg
+.. .. image:: https://img.shields.io/pypi/l/shsk-ai-harness-docs.svg
     :target: https://pypi.python.org/pypi/shsk-ai-harness-docs
 
-.. image:: https://img.shields.io/pypi/pyversions/shsk-ai-harness-docs.svg
+.. .. image:: https://img.shields.io/pypi/pyversions/shsk-ai-harness-docs.svg
     :target: https://pypi.python.org/pypi/shsk-ai-harness-docs
 
 .. image:: https://img.shields.io/badge/✍️_Release_History!--None.svg?style=social&logo=github
@@ -26,7 +26,7 @@
 
 ------
 
-.. image:: https://img.shields.io/badge/Link-API-blue.svg
+.. .. image:: https://img.shields.io/badge/Link-API-blue.svg
     :target: https://shsk-ai-harness-docs.readthedocs.io/en/latest/py-modindex.html
 
 .. image:: https://img.shields.io/badge/Link-Install-blue.svg

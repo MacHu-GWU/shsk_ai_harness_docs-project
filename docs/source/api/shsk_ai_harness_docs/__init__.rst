@@ -1,5 +1,5 @@
 shsk_ai_harness_docs
-==================================
+====================
 
 .. automodule:: shsk_ai_harness_docs
     :members:
